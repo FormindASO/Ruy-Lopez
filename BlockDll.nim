@@ -160,4 +160,4 @@ Sleep(2000)
 echo "[*] Resuming the process"
 ResumeThread(tHandle)
 
-Sleep(4000)
+Sleep(10000)
