@@ -1,0 +1,45 @@
+# SYMANTEC / NORTON
+
+symamsi.dll
+ccVrTrst.dll
+ccSet.dll
+ccLib.dll
+EFACli64.dll
+ccIPC.dll
+IPSEng32.dll
+
+# Avira
+
+Avira.SystemSpeedUp.UI.ShellExtension.dll
+
+
+# F-Secure
+
+spapi64.dll
+fsamsi64.dll
+fs_ccf_ipc_64.dll
+
+# Trend Micro
+
+TmUmEvt64.dll
+tmmon64.dll
+TmAMSIProvider64.dll
+TmOverlayIcon.dll
+
+# Webroot
+
+WRusr.dll
+
+# BitDefender
+
+bdhkm64.dll
+atcuf64.dll
+
+# Malwarebytes
+
+mbae.dll
+
+# Windows Defender
+
+MpClient.dll
+MpOAV.dll
